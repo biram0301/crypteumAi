@@ -1,22 +1,34 @@
+from flask import Flask, render_template, jsonify
 import os
-import time
-from flask import Flask
+from services.kraken_service import get_kraken_balance
+from services.news_service import get_latest_news
+from utils.logger import logger
+from models.database import init_db
 
 app = Flask(__name__)
 
-def mask(s: str | None, keep=4):
-    if not s:
-        return "None"
-    return s[:keep] + "…" + s[-keep:]
-
 @app.route("/")
 def home():
-    return {
-        "status": "🚀 CrypteumAI is running with APIs...",
-        "Kraken Key": mask(os.getenv("KRAKEN_API_KEY")),
-        "NewsAPI Key": mask(os.getenv("NEWSAPI_KEY"))
-    }
+    return render_template("dashboard.html")
+
+@app.route("/api/balance")
+def balance():
+    try:
+        data = get_kraken_balance()
+        return jsonify(data)
+    except Exception as e:
+        logger.error(f"Error fetching Kraken balance: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/news")
+def news():
+    try:
+        data = get_latest_news()
+        return jsonify(data)
+    except Exception as e:
+        logger.error(f"Error fetching news: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    init_db()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
