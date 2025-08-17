@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CrypteumAI Dashboard</title>
+</head>
+<body>
+  <h1>🚀 Bienvenue sur CrypteumAI</h1>
+  <p>Ici tu pourras voir ton solde Kraken et les dernières news.</p>
+  <button onclick="loadBalance()">Voir Solde</button>
+  <button onclick="loadNews()">Voir News</button>
+  <pre id="output"></pre>
+
+  <script>
+    async function loadBalance() {
+      let res = await fetch("/api/balance");
+      let data = await res.json();
+      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+    }
+    async function loadNews() {
+      let res = await fetch("/api/news");
+      let data = await res.json();
+      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
